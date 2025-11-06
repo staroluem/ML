@@ -30,7 +30,17 @@ df['distance_km'] = haversine_distance(
     df['dropoff_latitude'],
     df['dropoff_longitude']
 )
-
+numeric = ['fare_amount','pickup_longitude','passenger_count']
+outlier_in=set()
+for col in numeric:
+    q1 = df[col].quantile(0.40)
+    q3 = df[col].quantile(0.60)
+    IQR = q3-q1
+    lower = q1-1.5*IQR
+    high  = q3+1.5*IQR
+    outlier= df[(df[col]<lower) | (df[col]>high)].index
+    outlier_in.update(outlier)
+df_cleaned = df.drop(index=outlier_in)
 print(df[['pickup_latitude', 'pickup_longitude', 'dropoff_latitude', 'dropoff_longitude', 'distance_km']].head())
 
 # Remove zero-distance rides
